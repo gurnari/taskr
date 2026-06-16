@@ -1,5 +1,5 @@
 // Task Module
-use serde::{Serialize, Deserialize};
+use serde::{Deserialize, Serialize};
 use std::fmt;
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -66,7 +66,13 @@ impl Task {
 impl fmt::Display for Task {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         let mark = if self.is_done() { "x" } else { " " };
-        write!(f, "[{}] #{} {} {}", mark, self.id, self.priority.symbol(), self.title)
+        write!(
+            f,
+            "[{}] #{} {} {}",
+            mark,
+            self.id,
+            self.priority.symbol(),
+            self.title
+        )
     }
 }
-

@@ -1,8 +1,8 @@
 // TaskList Module
-use serde::{Serialize, Deserialize};
+use serde::{Deserialize, Serialize};
 use std::fs;
 
-use crate::task::{Task, Priority};
+use crate::task::{Priority, Task};
 
 const FILE: &str = "tasks.json";
 
@@ -14,7 +14,10 @@ pub struct TaskList {
 
 impl TaskList {
     pub fn new() -> TaskList {
-        TaskList { tasks: Vec::new(), next_id: 1 }
+        TaskList {
+            tasks: Vec::new(),
+            next_id: 1,
+        }
     }
 
     pub fn add(&mut self, title: &str, priority: Priority) -> u32 {
@@ -30,7 +33,10 @@ impl TaskList {
 
     pub fn complete(&mut self, id: u32) -> bool {
         match self.find_mut(id) {
-            Some(task) => { task.complete(); true }
+            Some(task) => {
+                task.complete();
+                true
+            }
             None => false,
         }
     }
@@ -56,7 +62,10 @@ impl TaskList {
     }
 
     pub fn high_priority(&self) -> Vec<&Task> {
-        self.tasks.iter().filter(|t| t.priority == Priority::High).collect()
+        self.tasks
+            .iter()
+            .filter(|t| t.priority == Priority::High)
+            .collect()
     }
 
     pub fn save(&self) -> Result<(), Box<dyn std::error::Error>> {
@@ -73,3 +82,30 @@ impl TaskList {
     }
 }
 
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn add_assigns_incrementing_ids() {
+        let mut list = TaskList::new();
+        let a = list.add("a", Priority::Low);
+        let b = list.add("b", Priority::Low);
+        assert_eq!(a, 1);
+        assert_eq!(b, 2);
+    }
+
+    #[test]
+    fn complete_marks_task_done() {
+        let mut list = TaskList::new();
+        let id = list.add("a", Priority::Low);
+        assert!(list.complete(id));
+        assert_eq!(list.pending_count(), 0);
+    }
+
+    #[test]
+    fn complete_unknown_id_returns_false() {
+        let mut list = TaskList::new();
+        assert!(!list.complete(999));
+    }
+}

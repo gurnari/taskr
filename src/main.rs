@@ -6,7 +6,9 @@ use task::Priority;
 use task_list::TaskList;
 
 fn parse_id(s: &str) -> Result<u32, String> {
-    let n = s.parse::<u32>().map_err(|_| format!("'{s}' n'est pas un id valide"))?;
+    let n = s
+        .parse::<u32>()
+        .map_err(|_| format!("'{s}' n'est pas un id valide"))?;
     Ok(n)
 }
 
@@ -28,13 +30,19 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         [cmd] if cmd == "list" => list.list(),
         [cmd, id] if cmd == "done" => {
             let id = parse_id(id)?;
-            if list.complete(id) { println!("Tâche #{id} terminée ✓"); }
-            else { println!("Pas de tâche #{id}."); }
+            if list.complete(id) {
+                println!("Tâche #{id} terminée ✓");
+            } else {
+                println!("Pas de tâche #{id}.");
+            }
         }
         [cmd, id] if cmd == "remove" => {
             let id = parse_id(id)?;
-            if list.remove(id) { println!("Tâche #{id} supprimée."); }
-            else { println!("Pas de tâche #{id}."); }
+            if list.remove(id) {
+                println!("Tâche #{id} supprimée.");
+            } else {
+                println!("Pas de tâche #{id}.");
+            }
         }
         _ => {
             println!("Usage : taskr add <titre> [--priority low|medium|high]");
