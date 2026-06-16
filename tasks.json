@@ -1,0 +1,17 @@
+{
+  "tasks": [
+    {
+      "id": 1,
+      "title": "Préparer l'entretien",
+      "status": "Todo",
+      "priority": "High"
+    },
+    {
+      "id": 2,
+      "title": "Finir le projet taskr",
+      "status": "Todo",
+      "priority": "Medium"
+    }
+  ],
+  "next_id": 3
+}
