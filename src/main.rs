@@ -1,4 +1,4 @@
-// Main file
+// Main
 mod task;
 mod task_list;
 
