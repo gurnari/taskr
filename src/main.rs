@@ -40,8 +40,6 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
             println!("        taskr list | done <id> | remove <id>");
         }
     }
-
     list.save()?;
     Ok(())
-
 }
