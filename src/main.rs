@@ -28,6 +28,10 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
             println!("Tâche # {id} ajoutée.");
         }
         [cmd] if cmd == "list" => list.list(),
+        [cmd] if cmd == "clear-done" => {
+            let deleted = list.remove_completed();
+            println!("{deleted} tâches terminées ont été supprimées.")
+        }
         [cmd, id] if cmd == "done" => {
             let id = parse_id(id)?;
             if list.complete(id) {

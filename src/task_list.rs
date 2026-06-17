@@ -61,6 +61,12 @@ impl TaskList {
         self.tasks.iter().filter(|t| !t.is_done()).count()
     }
 
+    pub fn remove_completed(&mut self) -> usize {
+        let before = self.tasks.len();
+        self.tasks.retain(|t| !t.is_done());
+        before - self.tasks.len()
+    }
+
     pub fn high_priority(&self) -> Vec<&Task> {
         self.tasks
             .iter()
