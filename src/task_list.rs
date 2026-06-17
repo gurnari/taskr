@@ -52,7 +52,11 @@ impl TaskList {
             println!("Aucune tâche. Ajoutez-en une avec `add` !");
             return;
         }
-        for task in &self.tasks {
+        
+        let mut sorted: Vec<&Task> = self.tasks.iter().collect();
+        sorted.sort_by(|a, b| b.priority.cmp(&a.priority));
+
+        for task in sorted {
             println!("{task}");
         }
     }
