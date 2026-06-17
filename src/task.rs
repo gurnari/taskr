@@ -1,6 +1,7 @@
 // Task Module
 use serde::{Deserialize, Serialize};
 use std::fmt;
+use chrono::NaiveDate;
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 enum Status {
@@ -39,16 +40,18 @@ pub struct Task {
     title: String,
     status: Status,
     pub priority: Priority,
+    due_date: NaiveDate,
 }
 
 impl Task {
     // Fonction associée (pas de self) : c'est le "constructeur" idiomatique
-    pub fn new(id: u32, title: &str, priority: Priority) -> Task {
+    pub fn new(id: u32, title: &str, priority: Priority, due_date: NaiveDate) -> Task {
         Task {
             id,
             title: title.to_string(),
             status: Status::Todo,
             priority,
+            due_date,
         }
     }
 
@@ -68,11 +71,12 @@ impl fmt::Display for Task {
         let mark = if self.is_done() { "x" } else { " " };
         write!(
             f,
-            "[{}] #{} {} {}",
+            "[{}] #{} ({}) : {} | Échéance : {}",
             mark,
             self.id,
             self.priority.symbol(),
-            self.title
+            self.title,
+            self.due_date.format("%d/%m/%Y")
         )
     }
 }

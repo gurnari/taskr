@@ -1,13 +1,17 @@
 // Main
+use std::fmt::format;
+use clap::{Parser, Subcommand};
+use chrono::NaiveDate;
+
 mod task;
 mod task_list;
-
-use std::fmt::format;
 
 use task::Priority;
 use task_list::TaskList;
 
-use clap::{Parser, Subcommand};
+fn parse_date(s: &str) -> Result<NaiveDate, chrono::ParseError> {
+    NaiveDate::parse_from_str(s, "%d/%m/%Y")
+}
 
 #[derive(Parser)]
 #[command(name = "Taskr")]
@@ -25,6 +29,10 @@ enum Commands {
     Add { 
         /// Titre de la tâche
         title: String,
+
+        /// Date d'échéance [format: jj/mm/aaaa]
+        #[arg(value_parser = parse_date)]
+        due_date: NaiveDate,
 
         #[arg(short, long, value_enum)]
         priority: Option<Priority>,
@@ -49,12 +57,12 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let mut list = TaskList::load()?;
 
     match &cli.command {
-        Commands::Add { title, priority } => {
+        Commands::Add { title, priority, due_date } => {
             let priority = match priority {
                 Some(p) => p.clone(),
                 None => Priority::Medium
             };
-            let id = list.add(title, priority);
+            let id = list.add(title, priority, *due_date);
             println!("Tâche # {id} ajoutée.");
         }
         Commands::Remove { id } => {

@@ -1,6 +1,7 @@
 // TaskList Module
 use serde::{Deserialize, Serialize};
 use std::fs;
+use chrono::NaiveDate;
 
 use crate::task::{Priority, Task};
 
@@ -20,9 +21,9 @@ impl TaskList {
         }
     }
 
-    pub fn add(&mut self, title: &str, priority: Priority) -> u32 {
+    pub fn add(&mut self, title: &str, priority: Priority, due_date: NaiveDate) -> u32 {
         let id = self.next_id;
-        self.tasks.push(Task::new(id, title, priority));
+        self.tasks.push(Task::new(id, title, priority, due_date));
         self.next_id += 1;
         id
     }
@@ -99,8 +100,9 @@ mod tests {
     #[test]
     fn add_assigns_incrementing_ids() {
         let mut list = TaskList::new();
-        let a = list.add("a", Priority::Low);
-        let b = list.add("b", Priority::Low);
+        let sample_date = NaiveDate::MIN;
+        let a = list.add("a", Priority::Low, sample_date);
+        let b = list.add("b", Priority::Low, sample_date);
         assert_eq!(a, 1);
         assert_eq!(b, 2);
     }
@@ -108,7 +110,8 @@ mod tests {
     #[test]
     fn complete_marks_task_done() {
         let mut list = TaskList::new();
-        let id = list.add("a", Priority::Low);
+        let sample_date = NaiveDate::MIN;
+        let id = list.add("a", Priority::Low, sample_date);
         assert!(list.complete(id));
         assert_eq!(list.pending_count(), 0);
     }
