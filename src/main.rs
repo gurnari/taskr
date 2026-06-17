@@ -2,56 +2,80 @@
 mod task;
 mod task_list;
 
+use std::fmt::format;
+
 use task::Priority;
 use task_list::TaskList;
 
-fn parse_id(s: &str) -> Result<u32, String> {
-    let n = s
-        .parse::<u32>()
-        .map_err(|_| format!("'{s}' n'est pas un id valide"))?;
-    Ok(n)
+use clap::{Parser, Subcommand};
+
+#[derive(Parser)]
+#[command(name = "Taskr")]
+#[command(version = "1.0")]
+#[command(propagate_version = true)]
+#[command(about = "Gestionnaire de tâches en CLI.", long_about = None)]
+struct Cli {
+    #[command(subcommand)]
+    command: Commands,
 }
 
+#[derive(Subcommand)]
+enum Commands {
+    /// Ajoute une tâche
+    Add { 
+        /// Titre de la tâche
+        title: String,
+
+        #[arg(short, long, value_enum)]
+        priority: Option<Priority>,
+    },
+    
+    /// Valide une tâche
+    Done { id: u32 },
+
+    /// Liste les tâches par ordre de priorité
+    List,
+
+    /// Supprime une tâche
+    Remove { id: u32 },
+
+    /// Supprime les tâches terminées
+    ClearDone,
+}
+
+
 fn main() -> Result<(), Box<dyn std::error::Error>> {
-    let args: Vec<String> = std::env::args().skip(1).collect();
+    let cli = Cli::parse();
     let mut list = TaskList::load()?;
 
-    match args.as_slice() {
-        [cmd, title, rest @ ..] if cmd == "add" => {
-            let priority = match rest.first().map(|s| s.as_str()) {
-                Some("--priority") | Some("-p") => {
-                    Priority::from_str(rest.get(1).map(|s| s.as_str()).unwrap_or("medium"))
-                }
-                _ => Priority::Medium,
+    match &cli.command {
+        Commands::Add { title, priority } => {
+            let priority = match priority {
+                Some(p) => p.clone(),
+                None => Priority::Medium
             };
             let id = list.add(title, priority);
             println!("Tâche # {id} ajoutée.");
         }
-        [cmd] if cmd == "list" => list.list(),
-        [cmd] if cmd == "clear-done" => {
-            let deleted = list.remove_completed();
-            println!("{deleted} tâches terminées ont été supprimées.")
-        }
-        [cmd, id] if cmd == "done" => {
-            let id = parse_id(id)?;
-            if list.complete(id) {
-                println!("Tâche #{id} terminée ✓");
-            } else {
-                println!("Pas de tâche #{id}.");
-            }
-        }
-        [cmd, id] if cmd == "remove" => {
-            let id = parse_id(id)?;
-            if list.remove(id) {
+        Commands::Remove { id } => {
+            if list.remove(*id) {
                 println!("Tâche #{id} supprimée.");
             } else {
                 println!("Pas de tâche #{id}.");
             }
         }
-        _ => {
-            println!("Usage : taskr add <titre> [--priority low|medium|high]");
-            println!("        taskr list | done <id> | remove <id>");
+        Commands::Done { id } => {
+            if list.complete(*id) {
+                println!("Tâche #{id} terminée ✓");
+            } else {
+                println!("Pas de tâche #{id}.");
+            }
         }
+        Commands::ClearDone => {
+            let deleted = list.remove_completed();
+            println!("{deleted} tâches terminées ont été supprimées.")
+        }
+        Commands::List => list.list(),
     }
     list.save()?;
     Ok(())
